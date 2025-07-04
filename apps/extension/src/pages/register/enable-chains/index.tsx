@@ -50,6 +50,7 @@ import { useSearch } from "../../../hooks/use-search";
 import { getChainSearchResultClickAnalyticsProperties } from "../../../analytics-amplitude";
 import { AnalyticsAmplitudeStore } from "@keplr-wallet/analytics";
 import debounce from "lodash.debounce";
+import { useSearchParams } from "react-router-dom";
 
 const logChainSearchClick = (
   analyticsStore: AnalyticsAmplitudeStore,
@@ -128,7 +129,10 @@ export const EnableChainsScene: FunctionComponent<{
 
     const searchRef = useRef<HTMLInputElement | null>(null);
     const buttonContainerRef = useRef<HTMLDivElement>(null);
+    const pageMountedAtRef = useRef(performance.now());
     useScrollDownWhenCantSeeSaveButton(buttonContainerRef);
+
+    const [searchParams] = useSearchParams();
 
     const nativeChainIdentifierSet = useMemo(
       () =>
@@ -2445,6 +2449,107 @@ export const EnableChainsScene: FunctionComponent<{
                   } else {
                     replaceToWelcomePage();
                   }
+                }
+
+                // Amplitude Analytics
+                const allNativeChainsEnabled =
+                  nativeGroupedModularChainInfos.length ===
+                  enabledNativeChainIdentifiersInPage.length;
+
+                const enabledIds = Array.from(enablesSet);
+
+                const betaEnabledCount = enabledIds.filter((id) => {
+                  try {
+                    const chainInfo = chainStore.getChain(id);
+                    return chainInfo.beta;
+                  } catch (e) {
+                    return false;
+                  }
+                }).length;
+
+                const testnetEnabledCount = enabledIds.filter((id) => {
+                  if (id.includes("test") || id.includes("devnet")) {
+                    return true;
+                  }
+                  try {
+                    const chainInfo = chainStore.getChain(id);
+                    return (
+                      chainInfo.chainName.toLowerCase().includes("test") ||
+                      chainInfo.chainName.toLowerCase().includes("devnet")
+                    );
+                  } catch (e) {
+                    return false;
+                  }
+                }).length;
+
+                const ecosystemCounts: {
+                  cosmos: number;
+                  evm: number;
+                  starknet: number;
+                  bitcoin: number;
+                } = {
+                  cosmos: 0,
+                  evm: 0,
+                  starknet: 0,
+                  bitcoin: 0,
+                };
+
+                enabledIds.forEach((id) => {
+                  let eco: keyof typeof ecosystemCounts = "cosmos";
+                  try {
+                    const modularInfo = chainStore.getModularChain(id);
+
+                    if ("bitcoin" in modularInfo) {
+                      eco = "bitcoin";
+                    } else if ("starknet" in modularInfo) {
+                      eco = "starknet";
+                    } else if ("cosmos" in modularInfo) {
+                      eco = chainStore.isEvmOnlyChain(id) ? "evm" : "cosmos";
+                    }
+
+                    ecosystemCounts[eco] += 1;
+                  } catch (e) {
+                    return;
+                  }
+                });
+
+                try {
+                  const entryPoint =
+                    searchParams.get("route") === "enable-chains"
+                      ? "enable-chains"
+                      : "new-account";
+
+                  analyticsAmplitudeStore.logEvent(
+                    "click_save_enable_chains_btn_register",
+                    {
+                      durationMs: performance.now() - pageMountedAtRef.current,
+                      enabledChainCount: enabledIds.length,
+                      testnetEnabledCount,
+                      betaEnabledCount,
+                      cosmosEnabledCount: ecosystemCounts.cosmos,
+                      evmEnabledCount: ecosystemCounts.evm,
+                      starknetEnabledCount: ecosystemCounts.starknet,
+                      bitcoinEnabledCount: ecosystemCounts.bitcoin,
+                      allNativeChainsEnabled,
+                      entryPoint,
+                    }
+                  );
+
+                  analyticsAmplitudeStore.setUserProperties({
+                    enabled_chain_count: enabledIds.length,
+                    testnet_enabled_count: testnetEnabledCount,
+                    beta_enabled_count: betaEnabledCount,
+                    cosmos_enabled_count: ecosystemCounts.cosmos,
+                    evm_enabled_count: ecosystemCounts.evm,
+                    starknet_enabled_count: ecosystemCounts.starknet,
+                    bitcoin_enabled_count: ecosystemCounts.bitcoin,
+                    all_native_chains_enabled: allNativeChainsEnabled,
+                  });
+                } catch (e) {
+                  console.error(
+                    "[Analytics] Failed to log click_save_enable_chains_btn_register",
+                    e
+                  );
                 }
               }}
             />

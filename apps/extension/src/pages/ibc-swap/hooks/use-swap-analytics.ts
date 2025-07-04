@@ -55,8 +55,7 @@ export const useSwapAnalytics = ({
   swapFeeBps,
 }: SwapAnalyticsArgs) => {
   const [searchParams] = useSearchParams();
-  const { analyticsAmplitudeStore, keyRingStore, uiConfigStore, priceStore } =
-    useStore();
+  const { analyticsAmplitudeStore, uiConfigStore, priceStore } = useStore();
 
   const quoteIdRef = useRef("");
 
@@ -157,7 +156,6 @@ export const useSwapAnalytics = ({
 
     logEvent("swap_entry", {
       entry_point: entryPoint,
-      wallet_type: keyRingStore.selectedKeyInfo?.type,
     });
   });
 
@@ -237,17 +235,17 @@ export const useSwapAnalytics = ({
 
   // Quote requested
   const queryIBCSwapForLog = ibcSwapConfigs.amountConfig.getQueryIBCSwap();
-  const queryMsgsDirectForLog = queryIBCSwapForLog?.getQueryMsgsDirect();
+  const queryRouteForLog = queryIBCSwapForLog?.getQueryRoute();
 
   useEffect(() => {
     const amount = ibcSwapConfigs.amountConfig.amount[0];
 
-    if (!queryMsgsDirectForLog || !amount) {
+    if (!queryRouteForLog || !amount) {
       prevFetchingRef.current = false;
       return;
     }
 
-    if (!prevFetchingRef.current && queryMsgsDirectForLog.isFetching) {
+    if (!prevFetchingRef.current && queryRouteForLog.isFetching) {
       quoteIdRef.current = generateQuoteId();
 
       const inAmountRaw = amount.toCoin().amount.toString();
@@ -267,10 +265,10 @@ export const useSwapAnalytics = ({
         swap_fee_bps: swapFeeBps,
       });
     }
-    prevFetchingRef.current = queryMsgsDirectForLog.isFetching;
+    prevFetchingRef.current = queryRouteForLog.isFetching;
   }, [
-    queryMsgsDirectForLog,
-    queryMsgsDirectForLog?.isFetching,
+    queryRouteForLog,
+    queryRouteForLog?.isFetching,
     inCurrency,
     outCurrency,
     swapFeeBps,
@@ -283,12 +281,12 @@ export const useSwapAnalytics = ({
 
   // Quote received
   useEffect(() => {
-    if (!queryMsgsDirectForLog?.response) return;
+    if (!queryRouteForLog?.response) return;
 
-    const currentKey = queryMsgsDirectForLog.response.data.route.amount_out;
+    const currentKey = queryRouteForLog.response.data.amount_out;
     if (prevRouteKeyRef.current === currentKey) return;
 
-    const outAmountRaw = queryMsgsDirectForLog.response.data.route.amount_out;
+    const outAmountRaw = queryRouteForLog.response.data.amount_out;
     const outCoinPretty = new CoinPretty(outCurrency, outAmountRaw.toString());
     const outUsd = (() => {
       const p = priceStore.calculatePrice(outCoinPretty, "usd");
@@ -300,14 +298,13 @@ export const useSwapAnalytics = ({
       out_amount_est_raw: outAmountRaw,
       out_amount_est_usd: outUsd,
       provider: "skip",
-      does_swap: queryMsgsDirectForLog.response.data.route.does_swap,
-      txs_required: queryMsgsDirectForLog.response.data.route.txs_required,
+      does_swap: queryRouteForLog.response.data.does_swap,
+      txs_required: queryRouteForLog.response.data.txs_required,
       route_duration_estimate_sec:
-        queryMsgsDirectForLog.response.data.route
-          .estimated_route_duration_seconds,
+        queryRouteForLog.response.data.estimated_route_duration_seconds,
       swap_venues: (
-        queryMsgsDirectForLog.response.data.route.swap_venues ?? [
-          queryMsgsDirectForLog.response.data.route.swap_venue,
+        queryRouteForLog.response.data.swap_venues ?? [
+          queryRouteForLog.response.data.swap_venue,
         ]
       )
         .filter(Boolean)
@@ -316,7 +313,7 @@ export const useSwapAnalytics = ({
     });
     prevRouteKeyRef.current = currentKey;
   }, [
-    queryMsgsDirectForLog?.response,
+    queryRouteForLog?.response,
     outCurrency,
     priceStore.calculatePrice,
     logEvent,
@@ -324,7 +321,7 @@ export const useSwapAnalytics = ({
 
   // Quote failed
   useEffect(() => {
-    if (!queryMsgsDirectForLog || !queryMsgsDirectForLog.error) return;
+    if (!queryRouteForLog || !queryRouteForLog.error) return;
 
     if (prevQuoteErrorIdRef.current === quoteIdRef.current) return;
 
@@ -332,11 +329,10 @@ export const useSwapAnalytics = ({
       quote_id: quoteIdRef.current,
       provider: "skip",
       error_message:
-        queryMsgsDirectForLog.error.message ??
-        queryMsgsDirectForLog.error.toString(),
+        queryRouteForLog.error.message ?? queryRouteForLog.error.toString(),
     });
     prevQuoteErrorIdRef.current = quoteIdRef.current;
-  }, [queryMsgsDirectForLog?.error, logEvent, queryMsgsDirectForLog]);
+  }, [queryRouteForLog?.error, logEvent, queryRouteForLog]);
 
   const logSwapSignOpened = useCallback(() => {
     logEvent("swap_sign_opened", {

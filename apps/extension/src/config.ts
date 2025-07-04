@@ -3501,6 +3501,113 @@ export const EmbedChainInfos: (ChainInfo | ModularChainInfo)[] = [
     },
     features: [],
   },
+  {
+    chainId: "pocket",
+    chainName: "Pocket Network",
+    chainSymbolImageUrl:
+      "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/pocket/chain.png",
+    rpc: "https://rpc-pocket.keplr.app",
+    rest: "https://lcd-pocket.keplr.app",
+    bip44: {
+      coinType: 118,
+    },
+    bech32Config: {
+      bech32PrefixAccAddr: "pokt",
+      bech32PrefixAccPub: "poktpub",
+      bech32PrefixValAddr: "poktvaloper",
+      bech32PrefixValPub: "poktvaloperpub",
+      bech32PrefixConsAddr: "poktvalcons",
+      bech32PrefixConsPub: "poktvalconspub",
+    },
+    currencies: [
+      {
+        coinDenom: "POKT",
+        coinMinimalDenom: "upokt",
+        coinDecimals: 6,
+        coinGeckoId: "pocket-network",
+        coinImageUrl:
+          "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/pocket/chain.png",
+      },
+      {
+        coinDenom: "MACT",
+        coinMinimalDenom: "umact",
+        coinDecimals: 6,
+      },
+    ],
+    feeCurrencies: [
+      {
+        coinDenom: "POKT",
+        coinMinimalDenom: "upokt",
+        coinDecimals: 6,
+        gasPriceStep: {
+          low: 0.01,
+          average: 0.01,
+          high: 0.01,
+        },
+      },
+      {
+        coinDenom: "MACT",
+        coinMinimalDenom: "umact",
+        coinDecimals: 6,
+        gasPriceStep: {
+          low: 0.01,
+          average: 0.01,
+          high: 0.01,
+        },
+      },
+    ],
+    stakeCurrency: {
+      coinDenom: "POKT",
+      coinMinimalDenom: "upokt",
+      coinDecimals: 6,
+    },
+    features: [],
+  },
+  {
+    rpc: "https://rpc-xrplevm.keplr.app",
+    rest: "https://lcd-xrplevm.keplr.app",
+    chainId: "xrplevm_1440000-1",
+    chainName: "XRPL EVM",
+    chainSymbolImageUrl:
+      "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/xrplevm_1440000/chain.png",
+    bip44: {
+      coinType: 60,
+    },
+    bech32Config: {
+      bech32PrefixAccAddr: "ethm",
+      bech32PrefixAccPub: "ethmpub",
+      bech32PrefixValAddr: "ethmvaloper",
+      bech32PrefixValPub: "ethmvaloperpub",
+      bech32PrefixConsAddr: "ethmvalcons",
+      bech32PrefixConsPub: "ethmvalcons",
+    },
+    currencies: [
+      {
+        coinDenom: "XRP",
+        coinMinimalDenom: "axrp",
+        coinGeckoId: "ripple",
+        coinDecimals: 18,
+        coinImageUrl:
+          "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/xrplevm_1440000/xrp-logo.png",
+      },
+    ],
+    feeCurrencies: [
+      {
+        coinDenom: "XRP",
+        coinMinimalDenom: "axrp",
+        coinDecimals: 18,
+        coinGeckoId: "ripple",
+        coinImageUrl:
+          "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/xrplevm_1440000/xrp-logo.png",
+        gasPriceStep: {
+          low: 200000000000,
+          average: 250000000000,
+          high: 400000000000,
+        },
+      },
+    ],
+    features: ["eth-address-gen", "eth-key-sign", "axelar-evm-bridge"],
+  },
 ];
 
 // The origins that are able to pass any permission that external webpages can have.

@@ -544,6 +544,7 @@ export class ChainsService {
             features: ["eth-address-gen", "eth-key-sign"].concat(
               res.data.features ?? []
             ),
+            isTestnet: res.data.isTestnet,
           };
 
     const fetchedChainIdentifier = ChainIdHelper.parse(
@@ -1085,16 +1086,45 @@ export class ChainsService {
         };
       }
 
-      // Normalize coinMinimalDenom for all currencies.
       newChainInfo = {
         ...newChainInfo,
         currencies: newChainInfo.currencies.map((currency) => {
+          // Normalize coinMinimalDenom for all currencies.
           const coinMinimalDenom = DenomHelper.normalizeDenom(
             currency.coinMinimalDenom
           );
 
-          return {
+          const newCurrency = {
             ...currency,
+          };
+
+          // If testnet, remove coingecko id
+          if (newChainInfo.isTestnet) {
+            delete newCurrency.coinGeckoId;
+          }
+
+          return {
+            ...newCurrency,
+            coinMinimalDenom,
+          };
+        }),
+        feeCurrencies: newChainInfo.feeCurrencies.map((feeCurrency) => {
+          // Normalize coinMinimalDenom for all currencies.
+          const coinMinimalDenom = DenomHelper.normalizeDenom(
+            feeCurrency.coinMinimalDenom
+          );
+
+          const newFeeCurrency = {
+            ...feeCurrency,
+          };
+
+          // If testnet, remove coingecko id
+          if (newChainInfo.isTestnet) {
+            delete newFeeCurrency.coinGeckoId;
+          }
+
+          return {
+            ...newFeeCurrency,
             coinMinimalDenom,
           };
         }),
@@ -1113,6 +1143,7 @@ export class ChainsService {
           chainId: cosmos.chainId,
           chainName: cosmos.chainName,
           chainSymbolImageUrl: cosmos.chainSymbolImageUrl,
+          isTestnet: cosmos.isTestnet,
           cosmos: this.mergeChainInfosWithDynamics([cosmos])[0],
         };
       }

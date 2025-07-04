@@ -301,7 +301,7 @@
 
   "page.setting.security.connected-websites-title": "Connected Websites",
   "page.setting.security.connected-websites-paragraph": "Websites that can view your address and make requests for signing",
-  "page.setting.security.auto-lock-title": "Auto-Lock",
+  "page.setting.security.auto-lock-title": "Auto-Lock Timer",
   "page.setting.security.change-password-title": "Change Password",
   "page.setting.security.analytics-title": "Share Anonymous Data",
   "page.setting.security.analytics-paragraph": "Help us improve the performance and quality of Keplr",
@@ -450,7 +450,7 @@
 
   "page.permission.unknown-permission": "Unknown permission",
   "page.permission.requesting-connection-title": "Requesting Connection",
-  "page.permission.paragraph": "By approving this request, the website will:{br}• Get the list of all chain on your Keplr Wallet",
+  "page.permission.paragraph": "By approving this request, the website will:{br}• Get the list of all chains from your Keplr Wallet",
 
   "page.permission.basic-access.select-chain-title": "Connect",
   "page.permission.basic-access-for-bitcoin.select-chain-paragraph": "Select a Bitcoin chain to connect.",
@@ -774,6 +774,7 @@
   "page.earn.overview.title": "Earn Overview",
   "page.earn.overview.claim-section.claimable-reward": "Claimable Reward",
   "page.earn.overview.claim-section.total-claimed": "Total Claimed",
+  "page.earn.overview.claim-section.total-claimed-tooltip": "Showing rewards claimed since June 19, 2025",
   "page.earn.overview.claim-section.claim-button": "Claim",
   "page.earn.overview.tutorial-modal.manage-earn.title": "Manage your Earn balance and rewards",
   "page.earn.overview.tutorial-modal.manage-earn.paragraph": "Find your balance info under the {tokenName} asset box at Home.",

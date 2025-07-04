@@ -36,7 +36,14 @@ export class ObservableQueryAssetsFromSourceInner extends ObservableQuery<Assets
     public readonly chainId: string,
     public readonly denom: string
   ) {
-    super(sharedContext, skipURL, "/v2/fungible/assets_from_source");
+    super(
+      sharedContext,
+      skipURL,
+      `/v1/swap/assets_from_source?chain_id=${chainId.replace(
+        "eip155:",
+        ""
+      )}&denom=${denom.replace("erc20:", "")}`
+    );
 
     makeObservable(this);
   }
@@ -91,6 +98,10 @@ export class ObservableQueryAssetsFromSourceInner extends ObservableQuery<Assets
         if (d) {
           const assets = d.assets
             .filter((asset) => {
+              if (d.assets.length > 1 && asset.trace) {
+                return false;
+              }
+
               return (
                 this.chainStore.hasChain(asset.chain_id) &&
                 this.chainStore.hasChain(asset.origin_chain_id)
@@ -124,7 +135,6 @@ export class ObservableQueryAssetsFromSourceInner extends ObservableQuery<Assets
       this.baseURL,
       this.url,
       {
-        method: "POST",
         headers: {
           "content-type": "application/json",
           ...(() => {
@@ -136,10 +146,6 @@ export class ObservableQueryAssetsFromSourceInner extends ObservableQuery<Assets
             return res;
           })(),
         },
-        body: JSON.stringify({
-          source_asset_chain_id: this.chainId,
-          source_asset_denom: this.denom,
-        }),
         signal: abortController.signal,
       }
     );
